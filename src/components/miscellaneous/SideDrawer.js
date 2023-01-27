@@ -7,13 +7,14 @@ import { useHistory } from 'react-router-dom';
 import axios from 'axios';
 import Loading from '../Loading';
 import UserListItem from '../UserAvatar/UserListItem';
+import { getSender } from '../../config/utilFunc';
 
 const SideDrawer = () => {
     const [search,setSearch] = useState("");
     const [searchResult, setSearchResult] = useState();
     const [loading,setLoading] = useState(false);
     const [loadingChat,setLoadingChat] = useState();
-    const {selectedChat ,setSelectedChat, setChats, chats} = ChatState();
+    const {selectedChat ,setSelectedChat, setChats, chats, notifications, setNotifications} = ChatState();
 
     const {isOpen, onOpen, onClose} = useDisclosure();
 
@@ -66,7 +67,6 @@ const SideDrawer = () => {
     }
 
     const accessChat = async (userId) => {
-        console.log(userId);
         try{
             setLoadingChat(true);
 
@@ -81,9 +81,7 @@ const SideDrawer = () => {
             }
 
             await axios(config).then(result => {
-                console.log(result);
                 if(!chats.find(c => c._id === result.data._id)) setChats([result.data, ...chats]);
-                console.log(chats);
                 setSelectedChat(result.data);
                 setLoadingChat(false);
                 onClose();
@@ -115,10 +113,21 @@ const SideDrawer = () => {
 
             <div>
                 <Menu>
-                    <MenuButton padding={1}>
+                    <MenuButton position="relative" padding={1}>
+                        {notifications.length ? <span style={{ position: "absolute",border: "1px solid red", background: "red", color: "white", borderRadius: "25px", width: "20px", height: "20px", padding: "0", fontSize: "12px", right: 0}}>{notifications.length}</span> : <></>}
                         <BellIcon fontSize="2xl" m={1}/>
                     </MenuButton>
-                    {/* <MenuList></MenuList> */}
+                    <MenuList pl={2}>
+                        {!notifications.length && "No New Messages" }
+                        {notifications?.map(notification => (
+                            <MenuItem key={notification._id} onClick={() => {
+                                setSelectedChat(notification.chat);
+                                setNotifications(notifications.filter(n => n !== notification))
+                            }}> 
+                                {notification.chat.isGroupChat ? `New message in ${notification.chat.chatName}` : `New message from ${getSender(user, notification.chat.users)}`}
+                            </MenuItem>
+                        ))}
+                    </MenuList>
                 </Menu>
                 <Menu>
                     <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>

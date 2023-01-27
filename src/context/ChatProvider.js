@@ -8,6 +8,7 @@ function ChatProvider({children}) {
   const [user, setUser] = useState();
   const [selectedChat, setSelectedChat] = useState();
   const [chats, setChats] = useState([]);
+  const [notifications, setNotifications] = useState([]); 
   const history = useHistory();
 
   useEffect(()=>{
@@ -18,13 +19,12 @@ function ChatProvider({children}) {
       // console.log(userInfo);
 
       if(!userInfo) {
-        console.log('entered')
         history.push('/')
       }
   },[history]);
 
   return (
-    <ChatContext.Provider value={{user, setUser, selectedChat, setSelectedChat, chats, setChats}}>{children}</ChatContext.Provider>
+    <ChatContext.Provider value={{user, setUser, selectedChat, setSelectedChat, chats, setChats, notifications, setNotifications}}>{children}</ChatContext.Provider>
   )
 }
 

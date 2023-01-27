@@ -7,28 +7,28 @@ import { ChatState } from '../context/ChatProvider'
 import Loading from './Loading';
 import GroupChatModal from './miscellaneous/GroupChatModal';
 
-const MyChats = () => {
+const MyChats = ({fetchAgain}) => {
   const {user, setUser, selectedChat, setSelectedChat, chats, setChats} = ChatState();
   const [loggedUser, setLoggeduser] = useState();
 
   const toast = useToast();
 
-  const fetchedChats = async() => {
+  const fetchedChats = async () => {
     try{
       const config = {
         headers: {
           Authorization: `Bearer ${user.token}`,
-          method: "get",
-          url: "/api/chat"
         }
       }
 
-      await axios(config).then(result => setChats(result.data));
+      const {data} = await axios.get("/api/chat",config);
+      console.log(data);
+      setChats(data);
 
     } catch(err) {
       toast({
         title: "Error occured",
-        description: "Failed to load search results",
+        description: "Failed to load search results.",
         status: "error",
         duration: 5000,
         isClosable: true,
@@ -41,7 +41,7 @@ const MyChats = () => {
   useEffect(() => {
     setLoggeduser(JSON.parse(localStorage.getItem("userInfo")));
     fetchedChats();
-  },[])
+  },[fetchAgain])
 
   return (
     <Box
